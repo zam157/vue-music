@@ -1,16 +1,23 @@
 <template>
-  <transition name="slide">
-    <div class="singer-detail"></div>
-  </transition>
+  <div class="singer-detail"></div>
 </template>
 
 <script>
-export default {
+import {mapGetters} from 'vuex'
 
+export default {
+  computed: {
+    ...mapGetters([
+      'singer'
+    ])
+  },
+  created () {
+    console.log(this.singer)
+  }
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus" scoped rel="stylesheet/stylus">
   @import "~common/stylus/variable"
 
   .singer-detail
@@ -22,9 +29,4 @@ export default {
     bottom 0
     background $color-background
 
-  .slide-enter-active,.slide-leave-active
-    transition all 0.3s
-
-  .slide-enter,.slide-leave-to
-    transform translate3d(100%,0,0)
 </style>
