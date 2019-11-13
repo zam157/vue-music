@@ -6,8 +6,15 @@
 import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
+import {getSongUrls} from 'api/song'
+import {createSong} from 'common/js/song'
 
 export default {
+  data () {
+    return {
+      songs: []
+    }
+  },
   computed: {
     ...mapGetters([
       'singer'
@@ -24,9 +31,32 @@ export default {
       }
       getSingerDetail(this.singer.id).then(res => {
         if (res.code === ERR_OK) {
-          console.log(res.data.list)
+          this._normalizeSongs(res.data.list)
+            .then(ret => {
+              this.songs = ret
+              console.log(ret)
+            })
         }
       })
+    },
+    _normalizeSongs (list) {
+      let ret = [] // Song对象数组
+      let songmidArr = []
+
+      list.forEach(item => {
+        let {musicData} = item
+        songmidArr.push(musicData.songmid)
+      })
+      return getSongUrls(songmidArr)
+        .then(res => {
+          if (res.data) {
+            list.forEach(item => {
+              let {musicData} = item
+              ret.push(createSong(musicData, res.data[musicData.songmid]))
+            })
+          }
+          return Promise.resolve(ret)
+        })
     }
   }
 }

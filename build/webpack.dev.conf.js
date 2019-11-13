@@ -45,7 +45,22 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      /**
+       * 接口参数为Array类型的songmid
+       * 返回歌曲的url对象
+       */
+      app.get('/api/getSongUrls', (req, res) => {
+        const url = 'http://api.qq.jsososo.com/song/urls'
+        const id = req.query.id.toString()
 
+        axios.get(url, {
+          params: {id:id}
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
     },
     clientLogLevel: 'warning',
     historyApiFallback: {
