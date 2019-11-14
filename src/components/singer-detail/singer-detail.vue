@@ -1,5 +1,5 @@
 <template>
-  <div class="singer-detail"></div>
+  <music-list :title="title" :bg-image="bgImage" :songs="songs"></music-list>
 </template>
 
 <script>
@@ -8,6 +8,7 @@ import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import {getSongUrls} from 'api/song'
 import {createSong} from 'common/js/song'
+import MusicList from 'components/music-list/music-list'
 
 export default {
   data () {
@@ -16,6 +17,12 @@ export default {
     }
   },
   computed: {
+    title () {
+      return this.singer.name
+    },
+    bgImage () {
+      return this.singer.avatar
+    },
     ...mapGetters([
       'singer'
     ])
@@ -58,20 +65,13 @@ export default {
           return Promise.resolve(ret)
         })
     }
+  },
+  components: {
+    MusicList
   }
 }
 </script>
 
 <style lang="stylus" scoped rel="stylesheet/stylus">
   @import "~common/stylus/variable"
-
-  .singer-detail
-    position fixed
-    z-index 100
-    top 0
-    left 0
-    right 0
-    bottom 0
-    background $color-background
-
 </style>
