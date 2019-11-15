@@ -17,7 +17,7 @@ export default {
       type: Boolean,
       default: true
     },
-    data: {
+    data: { // 监测数据data，如果数据改变则在dom操作结束后调用
       type: Array,
       default: null
     },
