@@ -7,7 +7,14 @@
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="filter"></div>
     </div>
-    <scroll :data="songs" class="list" ref="list">
+    <div class="bg-layer" ref="layer"></div>
+    <scroll
+      @scroll="scroll"
+      :probe-type="probeType"
+      :listen-scroll="listenScroll"
+      :data="songs" class="list"
+      ref="list"
+    >
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -18,6 +25,8 @@
 <script>
 import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
+
+const RESERVED_HEIGHT = 40
 
 export default {
   props: {
@@ -34,17 +43,40 @@ export default {
       default: ''
     }
   },
+  data () {
+    return {
+      scrollY: 0
+    }
+  },
   computed: {
     bgStyle () {
       return `background-image:url(${this.bgImage})`
     }
+  },
+  created () {
+    this.probeType = 3
+    this.listenScroll = true
   },
   components: {
     Scroll,
     SongList
   },
   mounted () {
-    this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px` // top值为背景图高度
+    this.imageHeight = this.$refs.bgImage.clientHeight // 缓存背景图片高度
+    this.minTranslateY = -this.imageHeight + RESERVED_HEIGHT // 最大滚动距离
+    this.$refs.list.$el.style.top = `${this.imageHeight}px` // top值为背景图高度
+  },
+  methods: {
+    /** 实时获取scrollY的值 */
+    scroll (pos) {
+      this.scrollY = pos.y
+    }
+  },
+  watch: {
+    scrollY (newY) {
+      let translateY = Math.max(this.minTranslateY, newY)
+      this.$refs.layer.style['transform'] = `translate(0, ${translateY}px)`
+    }
   }
 }
 </script>
@@ -130,7 +162,7 @@ export default {
       bottom: 0
       width: 100%
       background: $color-background
-      overflow hidden
+      // overflow hidden
       .song-list-wrapper
         padding: 20px 30px
       .loading-container
