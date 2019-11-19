@@ -22,7 +22,7 @@
       ref="list"
     >
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectItem" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -36,6 +36,7 @@ import Scroll from 'base/scroll/scroll'
 import SongList from 'base/song-list/song-list'
 import Loading from 'base/loading/loading'
 import {prefixStyle} from 'common/js/dom'
+import {mapActions} from 'vuex'
 
 const RESERVED_HEIGHT = 40
 const transform = prefixStyle('transform')
@@ -81,12 +82,19 @@ export default {
     this.$refs.list.$el.style.top = `${this.imageHeight}px` // top值为背景图高度
   },
   methods: {
+    ...mapActions(['selectPlay']),
     /** 实时获取scrollY的值 */
     scroll (pos) {
       this.scrollY = pos.y
     },
     back () {
       this.$router.back()
+    },
+    selectItem (item, index) {
+      this.selectPlay({
+        list: this.songs,
+        index
+      })
     }
   },
   watch: {
