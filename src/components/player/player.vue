@@ -1,7 +1,13 @@
 <template>
   <div class="player" v-show="playList.length > 0">
     <!--播放页面全屏-->
-    <transition name="normal">
+    <transition
+      name="normal"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @leave="leave"
+      @after-leave="afterLeave"
+    >
       <div class="normal-player" v-show="fullScreen">
         <!--背景 模糊-->
         <div class="background">
@@ -66,6 +72,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import animations from 'create-keyframe-animation'
 
 export default {
   computed: {
@@ -77,6 +84,46 @@ export default {
     },
     open () {
       this.setFullScreen(true)
+    },
+    enter (el, done) {
+      const {x, y, scale} = this._getPostAndScale
+
+      let animation = {
+        0: {
+          transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+        },
+        60: {
+          transform: `translate3d(0,0,0) scale(1.1)`
+        },
+        100: {
+          transform: `translate3d(0,0,0) scale(1)`
+        }
+      }
+    },
+    afterEnter () {
+
+    },
+    leave (el, done) {
+
+    },
+    afterLeave () {
+
+    },
+    /** 获取歌曲图片坐标变化 */
+    _getPostAndScale () {
+      const targetWidth = 40
+      const paddingLeft = 40
+      const paddingBottom = 30
+      const paddingTop = 80
+      const width = window.innerWidth * 0.8
+      const scale = targetWidth / width
+      const x = -(window.innerWidth / 2 - paddingLeft)
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom
+      return {
+        x,
+        y,
+        scale
+      }
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
