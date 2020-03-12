@@ -47,6 +47,10 @@ let vendor = (() => {
   return false
 })()
 
+/**
+ * 给样式加上兼容前缀
+ * @param {String} style 样式名
+ */
 export function prefixStyle (style) {
   if (vendor === false) {
     return false

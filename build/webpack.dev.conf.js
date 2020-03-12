@@ -50,7 +50,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
        * 返回歌曲的url对象
        */
       app.get('/api/getSongUrls', (req, res) => {
-        const url = 'http://api.qq.jsososo.com/song/urls'
+        const url = 'http://localhost:3300/song/urls'
         const id = req.query.id.toString()
 
         axios.get(url, {
