@@ -13,7 +13,7 @@
         <div class="background">
           <img :src="currentSong.image" width="100%" height="100%" />
         </div>
-        <!--顶部-->
+        <!-- 顶部 -->
         <div class="top">
           <div class="back" @click="back">
             <i class="icon-back"></i>
@@ -21,6 +21,7 @@
           <h1 class="title" v-html="currentSong.name"></h1>
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
+        <!-- 中间（展示CD图片） -->
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
@@ -30,6 +31,7 @@
             </div>
           </div>
         </div>
+        <!-- 底部（展示操作按钮） -->
         <div class="bottom">
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
@@ -42,8 +44,8 @@
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
-            <div class="icon i-left">
-              <i class="icon-sequence"></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
               <i @click="prev" class="icon-prev"></i>
@@ -87,6 +89,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
+      @ended="ended"
     >
     </audio>
   </div>
@@ -98,6 +101,8 @@ import animations from 'create-keyframe-animation'
 import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import { playMode } from 'common/js/config'
+import { shuffle } from 'common/js/util'
 
 const transform = prefixStyle('transform')
 
@@ -115,6 +120,9 @@ export default {
     playIcon () {
       return this.playing ? 'icon-pause' : 'icon-play'
     },
+    iconMode () {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     miniIcon () {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
     },
@@ -124,7 +132,15 @@ export default {
     percent () { // 当前进度百分比
       return this.currentTime / this.currentSong.duration
     },
-    ...mapGetters(['fullScreen', 'playList', 'currentSong', 'playing', 'currentIndex'])
+    ...mapGetters([
+      'fullScreen',
+      'playList',
+      'currentSong',
+      'playing',
+      'currentIndex',
+      'mode',
+      'sequenceList'
+    ])
   },
   methods: {
     back () {
@@ -180,6 +196,17 @@ export default {
       }
       this.setPlayingState(!this.playing)
     },
+    ended () {
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.next()
+      }
+    },
+    loop () {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
     next () {
       if (!this.songReady) {
         return
@@ -230,6 +257,24 @@ export default {
         this.togglePlaying()
       }
     },
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    resetCurrentIndex (list) {
+      let index = list.findIndex(item => item.id === this.currentSong.id)
+      this.setCurrentIndex(index)
+    },
     /** 时间补位 */
     _pad (num, n = 2) {
       let len = num.toString().length
@@ -258,11 +303,16 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAY_LIST'
     })
   },
   watch: {
-    currentSong () {
+    currentSong (newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
       })
