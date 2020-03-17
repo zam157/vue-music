@@ -45,6 +45,21 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       })
+      app.get('/api/getRecommend', (req, res) => {
+        const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+      
+        axios.get(url, {
+          headers: {
+            referer: 'https://u.y.qq.com/',
+            host: 'u.y.qq.com'
+          },
+          params: req.query
+        }).then((response) => {
+          res.json(response.data)
+        }).catch((e) => {
+          console.log(e)
+        })
+      })
       /**
        * 接口参数为Array类型的songmid
        * 返回歌曲的url对象
@@ -58,6 +73,21 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         }).then((response) => {
           res.json(response.data)
         }).catch((e) => {
+          console.log(e)
+        })
+      })
+      app.get('/api/lyric', function (req, res) {
+        const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+
+        axios.get(url, {
+          headers: {
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
+          },
+          params: req.query
+        }).then(response => {
+          res.json(response.data)
+        }).catch(e => {
           console.log(e)
         })
       })

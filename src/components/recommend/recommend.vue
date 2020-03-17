@@ -4,9 +4,9 @@
       <div>
         <div v-if="recommends.length" class="slider-wrapper">
           <slider>
-            <div v-for="item in recommends" :key="item.id">
-              <a :href="item.linkUrl">
-                <img @load="loadImage" :src="item.picUrl"/>
+            <div v-for="(item, index) in recommends" :key="index">
+              <a :href="recommendUrl(item.jump_info.url)">
+                <img @load="loadImage" :src="item.pic_info.url"/>
               </a>
             </div>
           </slider>
@@ -52,10 +52,17 @@ export default {
     this._getDiscList()
   },
   methods: {
+    /**
+     * 根据推荐内容id拼接推荐跳转url
+     * @param rid 推荐内容的id
+     */
+    recommendUrl (rid) {
+      return `https://y.qq.com/n/yqq/album/${rid}.html`
+    },
     _getRecommend () {
       getRecommend().then((res) => {
         if (res.code === ERR_OK) {
-          this.recommends = res.data.slider
+          this.recommends = res.focus.data.content
         }
       })
     },
