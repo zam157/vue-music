@@ -41,7 +41,6 @@ export default {
           this._normalizeSongs(res.data.list)
             .then(ret => {
               this.songs = ret
-              console.log(ret)
             })
         }
       })

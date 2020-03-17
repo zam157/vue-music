@@ -1,10 +1,11 @@
 <template>
-  <scroll class="listview"
-          :data="data"
-          ref="listview"
-          :listenScroll="listenScroll"
-          :probeType="probeType"
-          @scroll="scroll"
+  <scroll
+    class="listview"
+    :data="data"
+    ref="listview"
+    :listenScroll="listenScroll"
+    :probeType="probeType"
+    @scroll="scroll"
   >
     <!-- 歌手列表 -->
     <ul>
@@ -109,6 +110,9 @@ export default {
      */
     scroll (pos) {
       this.scrollY = pos.y
+    },
+    refresh () {
+      this.$refs.listview.refresh()
     },
     _scrollTo (index) {
       // if (!index && index !== 0) {
