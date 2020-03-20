@@ -1,6 +1,7 @@
 // import jsonp from 'common/js/jsonp'
 import { commonParams } from './config'
 import axios from 'axios'
+// import jsonp from 'common/js/jsonp'
 
 export function getRecommend () {
   const url = '/api/getRecommend'
@@ -43,4 +44,24 @@ export function getDiscList () {
   }).then((res) => {
     return Promise.resolve(res.data)
   })
+}
+
+export function getSongList (disstid) {
+  const url = '/api/getSongList'
+
+  const data = Object.assign({}, commonParams, {
+    disstid,
+    type: 1,
+    json: 1,
+    urf8: 1,
+    onlysong: 0,
+    platform: 'yqq',
+    hostUin: 0,
+    needNewCode: 0,
+    format: 'json'
+  })
+
+  return axios.get(url, {
+    params: data
+  }).then(res => Promise.resolve(res.data))
 }
