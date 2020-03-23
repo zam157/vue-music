@@ -1,15 +1,134 @@
 <template>
-  <div>
-      排行页面
+  <div class="rank" ref="rank">
+    <scroll :data="topList" class="toplist" ref="toplist">
+      <ul>
+        <li class="item" v-for="(item, index) in topList" :key="index" @click="selectItem(item)">
+          <div class="icon">
+            <img
+              width="100"
+              height="100"
+              v-lazy="item.frontPicUrl"
+            />
+          </div>
+          <ul class="songlist">
+            <li class="song" v-for="s in item.song" :key="s.rank">
+              <span>{{s.rank}}</span>
+              <span>{{s.title}}-{{s.singerName}}</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <div class="loading-container" v-show="!topList.length">
+        <loading></loading>
+      </div>
+    </scroll>
+    <transition name="slide">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
-
 <script>
-export default {
+import { getTopList } from 'api/rank'
+import { ERR_OK } from 'api/config'
+import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
+import { playlistMixin } from 'common/js/mixin'
+import { mapMutations } from 'vuex'
 
+export default {
+  mixins: [playlistMixin],
+  created () {
+    this._getTopList()
+  },
+  data () {
+    return {
+      topList: []
+    }
+  },
+  methods: {
+    handlePlayList (playlist) {
+      const bottom = playlist.length ? '60px' : ''
+      this.$refs.rank.style.bottom = bottom
+      this.$refs.toplist.refresh()
+    },
+    selectItem (item) {
+      this.$router.push({
+        path: `/rank/${item.topId}`
+      })
+      this.setTopList(item)
+    },
+    _getTopList () {
+      getTopList().then(res => {
+        if (res.code === ERR_OK) {
+          const group = res.topList.data.group
+          let topList = []
+          group.forEach(item => {
+            const toplist = item.toplist
+            toplist.forEach(i => {
+              topList.push(i)
+            })
+          })
+
+          this.topList = topList
+        }
+      })
+    },
+    ...mapMutations({
+      setTopList: 'SET_TOP_LIST'
+    })
+  },
+  components: {
+    Scroll,
+    Loading
+  }
 }
 </script>
+<style lang="stylus" scoped>
+@import '~common/stylus/variable';
+@import '~common/stylus/mixin';
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+.rank
+  position fixed
+  width 100%
+  top 88px
+  bottom 0
+  .toplist
+    height 100%
+    overflow hidden
+    .item
+      display flex
+      margin 0px 20px 20px 20px
+      height 100px
+      border-radius 10px
+      overflow hidden
+      &:last-child
+        margin-bottom: 20px
+      .icon
+        flex 0 0 100px
+        width 100px
+        height 100px
+      .songlist
+        flex 1
+        display flex
+        flex-direction column
+        justify-content center
+        padding 0 20px
+        height 100px
+        overflow hidden
+        background $color-highlight-background
+        color $color-text-d
+        font-size $font-size-small
+        .song
+          no-wrap()
+          line-height 26px
+    .loading-container
+      position absolute
+      width 100%
+      top 50%
+      transform translateY(-50%)
+.slide-enter-active, .slide-leave-active
+  transition all 0.3s ease
 
+.slide-enter, .slide-leave-to
+  transform translate3d(100%, 0, 0)
 </style>
