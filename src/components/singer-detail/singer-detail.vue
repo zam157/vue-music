@@ -6,7 +6,6 @@
 import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {ERR_OK} from 'api/config'
-import {getSongUrls} from 'api/song'
 import {createSong} from 'common/js/song'
 import MusicList from 'components/music-list/music-list'
 
@@ -38,31 +37,19 @@ export default {
       }
       getSingerDetail(this.singer.id).then(res => {
         if (res.code === ERR_OK) {
-          this._normalizeSongs(res.data.list)
-            .then(ret => {
-              this.songs = ret
-            })
+          this.songs = this._normalizeSongs(res.data.list)
         }
       })
     },
     _normalizeSongs (list) {
-      let ret = [] // Song对象数组
-      let songmidArr = []
-
-      list.forEach(item => {
-        let {musicData} = item
-        songmidArr.push(musicData.songmid)
+      let ret = []
+      list.forEach((item) => {
+        let { musicData } = item
+        if (musicData.songid && musicData.albummid && musicData.pay.payplay === 0) {
+          ret.push(createSong(musicData))
+        }
       })
-      return getSongUrls(songmidArr)
-        .then(res => {
-          if (res.data) {
-            list.forEach(item => {
-              let {musicData} = item
-              ret.push(createSong(musicData, res.data[musicData.songmid]))
-            })
-          }
-          return Promise.resolve(ret)
-        })
+      return ret
     }
   },
   components: {

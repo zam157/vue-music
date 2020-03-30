@@ -113,4 +113,33 @@ apiRoutes.get('/getTopList', function (req, res) {
     })
 })
 
+apiRoutes.get('/getTopList', function (req, res) {
+  const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+
+  axios.get(url, {
+    headers: {
+      host: 'u.y.qq.com'
+    },
+    params: req.query
+  }).then(response => res.json(response.data))
+    .catch(e => {
+      console.log(e)
+    })
+})
+
+apiRoutes.get('/search', function (req, res) {
+  const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
+
+  axios.get(url, {
+    headers: {
+      referer: 'https://y.qq.com',
+      host: 'u.y.qq.com'
+    },
+    params: req.query
+  }).then(response => res.json(response.data))
+    .catch(e => {
+      console.log(e)
+    })
+})
+
 module.exports = apiRoutes

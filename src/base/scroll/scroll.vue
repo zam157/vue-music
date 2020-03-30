@@ -17,11 +17,21 @@ export default {
       type: Boolean,
       default: true
     },
-    data: { // 监测数据data，如果数据改变则在dom操作结束后调用
+    // 监测数据data，如果数据改变则在dom操作结束后调用
+    data: {
       type: Array,
       default: null
     },
     listenScroll: {
+      type: Boolean,
+      default: false
+    },
+    // 是否开启上拉刷新功能
+    pullup: {
+      type: Boolean,
+      default: false
+    },
+    beforeScroll: {
       type: Boolean,
       default: false
     }
@@ -47,6 +57,21 @@ export default {
         this.scroll.on('scroll', pos => {
           // 向父组件的scroll事件发送pos对象 pos对象包含x,y两个属性
           self.$emit('scroll', pos)
+        })
+      }
+
+      // 设置上拉刷新功能
+      if (this.pullup) {
+        this.scroll.on('scrollEnd', () => {
+          if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+            this.$emit('scrollToEnd')
+          }
+        })
+      }
+
+      if (this.beforeScroll) {
+        this.scroll.on('beforeScrollStart', () => {
+          this.$emit('beforeScroll')
         })
       }
     },

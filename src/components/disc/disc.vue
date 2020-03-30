@@ -31,6 +31,10 @@ export default {
   },
   methods: {
     _getSongList () {
+      if (!this.disc.dissid) {
+        this.$router.push('/recommend')
+        return
+      }
       getSongList(this.disc.dissid).then(res => {
         if (res.code === ERR_OK) {
           this.songs = this._normalizeSongs(res.cdlist[0].songlist)
@@ -40,7 +44,7 @@ export default {
     _normalizeSongs (list) {
       let ret = []
       list.forEach(musicData => {
-        if (musicData.songid && musicData.albumid) {
+        if (musicData.songid && musicData.albumid && musicData.pay.payplay === 0) {
           ret.push(createSong(musicData))
         }
       })

@@ -8,7 +8,6 @@ import { mapGetters } from 'vuex'
 import { createSong } from 'common/js/song'
 import { getMusicList } from 'api/rank'
 import { ERR_OK } from 'api/config'
-import { getSongUrls } from 'api/song'
 
 export default {
   computed: {
@@ -39,34 +38,19 @@ export default {
       }
       getMusicList(this.topList.topId).then(res => {
         if (res.code === ERR_OK) {
-          this._normalizeSongs(res.songlist)
-            .then(res => {
-              this.songs = res
-            })
+          this.songs = this._normalizeSongs(res.songlist)
         }
       })
     },
     _normalizeSongs (list) {
       let ret = []
-      let songmidArr = []
-
-      list.forEach(item => {
+      list.forEach((item) => {
         const musicData = item.data
-        songmidArr.push(musicData.songmid)
-        // if (musicData.songid && musicData.albummid) {
-        //   ret.push(createSong(musicData))
-        // }
+        if (musicData.songid && musicData.albummid && musicData.pay.payplay === 0) {
+          ret.push(createSong(musicData))
+        }
       })
-      return getSongUrls(songmidArr)
-        .then(res => {
-          if (res.data) {
-            list.forEach(item => {
-              const musicData = item.data
-              ret.push(createSong(musicData, res.data[musicData.songmid]))
-            })
-          }
-          return Promise.resolve(ret)
-        })
+      return ret
     }
   },
   components: {

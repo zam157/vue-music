@@ -1,4 +1,4 @@
-import { getLyric } from 'api/song'
+import { getLyric, getSongUrls } from 'api/song'
 import { ERR_OK } from 'api/config'
 import { Base64 } from 'js-base64'
 
@@ -30,6 +30,23 @@ export default class Song {
       })
     })
   }
+
+  getSongUrl () {
+    if (this.url) {
+      return Promise.resolve(this.url)
+    }
+
+    return new Promise((resolve, reject) => {
+      getSongUrls(this.mid).then(res => {
+        if (res.data[this.mid]) {
+          // this.url = res.data[this.mid]
+          resolve(res.data[this.mid])
+        } else {
+          reject(new Error('获取歌曲链接失败'))
+        }
+      })
+    })
+  }
 }
 
 export function createSong (musicData, url) {
@@ -49,7 +66,7 @@ export function createSong (musicData, url) {
  * 处理歌手列表
  * @param {Array} singer 歌手列表
  */
-function filterSinger (singer) {
+export function filterSinger (singer) {
   let ret = []
   if (!singer) {
     return ''
@@ -58,4 +75,23 @@ function filterSinger (singer) {
     ret.push(s.name)
   })
   return ret.join('/')
+}
+
+/**
+ * 将url添加到ret中, 返回Promise
+ * @param {Array} list 原始接口数据
+ * @param {Array} songmidArr 歌曲mid数组
+ * @param {Array} ret 最终生成的Song对象数组
+ */
+export function normalizeSongs (list, songmidArr, ret = []) {
+  return getSongUrls(songmidArr)
+    .then(res => {
+      if (res.data) {
+        list.forEach(item => {
+          let {musicData} = item
+          ret.push(createSong(musicData, res.data[musicData.songmid]))
+        })
+      }
+      return Promise.resolve(ret)
+    })
 }

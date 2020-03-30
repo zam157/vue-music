@@ -114,7 +114,7 @@
     </transition>
     <audio
       ref="audio"
-      :src="currentSong.url"
+      :src="currentSongUrl"
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
@@ -142,11 +142,13 @@ export default {
   data () {
     return {
       songReady: false, // 歌曲准备完毕标志位
+      urlLoding: true, // 歌曲正在加载标志位
       currentTime: 0, // 当前进度
       currentLyric: null, // 当前播放歌曲的歌词
       currentLineNum: 0, // 当前歌词行数
       currentShow: 'cd', // 当前页面中部显示的内容: 'cd' or 'lyric'
-      playingLyric: null // 当前进度对应的歌词内容
+      playingLyric: null, // 当前进度对应的歌词内容
+      currentSongUrl: ''
     }
   },
   computed: {
@@ -341,6 +343,17 @@ export default {
         this.currentLineNum = 0
       })
     },
+    getSongUrl () {
+      this.currentSong.getSongUrl().then(url => {
+        this.currentSongUrl = url
+        this.urlLoding = false
+        this.$nextTick(() => {
+          this.$refs.audio.play()
+        })
+      }).catch(() => {
+        this.next()
+      })
+    },
     handleLyric ({lineNum, txt}) {
       this.currentLineNum = lineNum
       if (lineNum > 5) {
@@ -447,14 +460,16 @@ export default {
         this.currentLyric.stop()
       }
       this.$nextTick(() => {
-        this.$refs.audio.play()
+        // this.$refs.audio.play()
         this.getLyric()
+        this.getSongUrl()
       })
     },
     playing (newPlaying) {
-      if (!this.songReady) {
+      if (!this.songReady || this.urlLoding) {
         return
       }
+
       this.$nextTick(() => {
         const audio = this.$refs.audio
         newPlaying ? audio.play() : audio.pause()
