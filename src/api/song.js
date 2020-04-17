@@ -25,7 +25,8 @@ export function getLyric (mid) {
  */
 export function getSongUrls (songmidArr) {
   // const url = '/api/getSongUrls'
-  const url = `http://${window.location.hostname}:3300/song/urls`
+  // const url = `http://${window.location.hostname}:3300/song/urls`
+  const url = '/api/urls'
   const params = {
     id: songmidArr.toString()
   }
