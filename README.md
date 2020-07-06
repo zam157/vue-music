@@ -1,6 +1,6 @@
 # vue-music
 
-> 本项目在[ustbhuangyi](https://github.com/ustbhuangyi)老师课程作品的基础上结合[jsososo/QQMusicApi](https://github.com/jsososo/QQMusicApi)的音源地址获取接口实现
+> An H5 Web music player
 
 ## 项目运行
 
